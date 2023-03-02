@@ -47,9 +47,16 @@ def norm_L2(vector1, vector2):
         norm += ((vector2[i] - vector1[i]) ** 2)
     return np.sqrt(norm)
 
-def solver(N, Pe):
-    u = np.zeros(N)
-#     TODO
+
+def solver_CD(N, Pe):
+
+    h= 1. / (N-1)
+    d = np.ones(N)*2/(h**2)
+    du = np.ones(N)*(-1*(Pe))
+    dl = np.ones(N)*2/(h**2)
+
+
+
 
     return u
 
