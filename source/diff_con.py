@@ -4,11 +4,11 @@ import time
 import thomas
 import matplotlib.pyplot as plt
 
-def real_solution_der(x, Pe=1):
+def real_solution_der(x, Pe):
     return Pe * (np.exp(Pe * x)) / (np.exp(Pe) - 1.0)
 
 
-def real_solution(x, Pe=1):
+def real_solution(x, Pe):
     return (np.exp(Pe * x) - 1.0) / (np.exp(Pe) - 1.0)
 
 
