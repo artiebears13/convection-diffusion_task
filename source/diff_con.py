@@ -89,7 +89,7 @@ def solver_CD(N, Pe):
     plt.plot(x, u_first_method, label = 'numeric')
     plt.plot(x, real_sol, label = 'real')
     plt.legend()
-    where_to_save = '../images/'+'Pe' + str(Pe) + '_N'+str(N+1)+'.png'
+    where_to_save = '../images/'+'Pe_' + str(Pe) + '_N_'+str(N+1)+'.png'
     plt.savefig(where_to_save)
     plt.close()
 
