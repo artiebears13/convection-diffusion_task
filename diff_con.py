@@ -2,6 +2,11 @@ import numpy as np
 from sys import stderr
 import time
 
+
+def real_dif1(x, Pe = 1):
+    return Pe * (np.exp(Pe * x )) / (np.exp(Pe) - 1.0)
+
+
 def real_solitoin(x, Pe = 1):
     return (np.exp(Pe * x) - 1.0) / (np.exp(Pe) - 1.0)
 
