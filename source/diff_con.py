@@ -3,6 +3,7 @@ from sys import stderr
 import time
 import thomas
 
+
 def real_solution_der(x, Pe=1):
     return Pe * (np.exp(Pe * x)) / (np.exp(Pe) - 1.0)
 
@@ -35,6 +36,16 @@ def thomas_solver(n, d, du, dl, b):
         u[i] = g[i] - q[i] * u[i + 1]
 
     return u
+
+
+def norm_L2(vector1, vector2):
+    if len(vector1) != len(vector2):
+        print('not equal lenghts in norm calculating')
+        return 0
+    norm = 0
+    for i in range(len(vector2)):
+        norm += ((vector2[i] - vector1[i]) ** 2)
+    return np.sqrt(norm)
 
 
 def main():
