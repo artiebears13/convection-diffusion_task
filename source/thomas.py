@@ -72,8 +72,8 @@ class ThreeDiagMatrix:
         for i in range(N - 2, -1, -1):  # i = N-2, N-1, ... , 0
             u[i] = g[i] - q[i] * u[i + 1]
         end_time = time.time()
-        print('time of my solver: ', (time.time() - start_time) / 1000, 'ms')
-        print('L2 norm: ', sp.linalg.norm(self.mul_mat_vec(u) - d, 2))
+        # print('time of my solver: ', (time.time() - start_time) / 1000, 'ms')
+        # print('L2 norm: ', sp.linalg.norm(self.mul_mat_vec(u) - d, 2))
         return u
 
     def mul_mat_vec(self, b):

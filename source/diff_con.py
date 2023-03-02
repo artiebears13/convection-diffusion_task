@@ -2,7 +2,7 @@ import numpy as np
 from sys import stderr
 import time
 import thomas
-
+import matplotlib.pyplot as plt
 
 def real_solution_der(x, Pe=1):
     return Pe * (np.exp(Pe * x)) / (np.exp(Pe) - 1.0)
@@ -48,20 +48,83 @@ def norm_L2(vector1, vector2):
     return np.sqrt(norm)
 
 
+# between scheme
 def solver_CD(N, Pe):
+    h = 1. / (N - 1)
 
-    h= 1. / (N-1)
-    d = np.ones(N)*2/(h**2)
-    du = np.ones(N)*(-1*(Pe))
-    dl = np.ones(N)*2/(h**2)
+    boundary_left = 0
+    boundary_right = 1.
+    N = N - 1
+    d = np.ones(N) * 2 / (h ** 2)  # diagonal
+    dl = np.ones(N) * (-1 * Pe / (2 * h) - 1 / (h ** 2))  # upper diagonal
+    du = np.ones(N) * (1 * Pe / (2 * h) - 1 / (h ** 2))  # lower diagonal
 
 
 
+    b = np.zeros(N)
 
-    return u
+    b[0] = b[0] - dl[0] * boundary_left
+    b[N - 1] = b[N - 1] - du[N - 1] * boundary_right
 
-def main():
+    A = thomas.ThreeDiagMatrix(d, du, dl)
+    # print('du: ', du)
+    # print('d: ', d)
+    # print('dl: ', dl)
+    # print('b: ', b)
+    u_first_method = A.thomas_solver(b)
+    real_sol = np.zeros(N)
+    x = []
+    for i in range(N):
+        x.append( i * h + h / 2)
+        # print('x: ',x[i])
+        real_sol[i] = real_solution(x[i], Pe)
+
+    # print('numeric: ', u_first_method)
+    # print('real:    ', real_sol)
+
+    print('----------------------------------------------------------')
+    print('Pe',Pe,' N = ', N + 1, ' L2 norm: ', norm_L2(u_first_method, real_sol))
+    # print('----------------------------------------------------------')
+
+    plt.plot(x, u_first_method, label = 'numeric')
+    plt.plot(x, real_sol, label = 'real')
+    plt.legend()
+    where_to_save = '../images/'+'Pe' + str(Pe) + '_N'+str(N+1)+'.png'
+    plt.savefig(where_to_save)
+    plt.close()
+
+    return u_first_method
+
+
+def solve_for_pe(Pe):
+    N = 11
+    solver_CD(N, Pe)
+
+    N = 21
+    solver_CD(N, Pe)
+
+    N = 41
+    solver_CD(N, Pe)
+
+    N = 81
+    solver_CD(N, Pe)
+
+    N = 161
+    solver_CD(N,Pe)
 
 
 if __name__ == '__main__':
-    main()
+    Pe = 1
+    solve_for_pe(Pe)
+
+    Pe = 0.001
+    solve_for_pe(Pe)
+
+    Pe = 0.5
+    solve_for_pe(Pe)
+
+    Pe = 10
+    solve_for_pe(Pe)
+
+    Pe = 100
+    solve_for_pe(Pe)
