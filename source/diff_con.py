@@ -112,6 +112,8 @@ def solve_for_pe(Pe):
     N = 161
     solver_CD(N,Pe)
 
+    N = 641
+    solver_CD(N, Pe)
 
 if __name__ == '__main__':
     Pe = 1
