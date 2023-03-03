@@ -128,34 +128,40 @@ def draw_solution(Pe_values: List[float], N_values: List[int], cols: int = 5, me
     """
 
     if cols == 2:
-        ROWS = len(N_values) // 2 + len(N_values) % 2
-        axsIndexes = [(i, j) for i in range(ROWS) for j in range(cols)]
+        ROWS = (len(N_values) // 2 + len(N_values) % 2) * 2
     else:
-        ROWS, cols = len(Pe_values) // 5 + len(Pe_values) % 5, 5
-        axsIndexes = [_ for _ in range(cols)]
+        ROWS, cols = (len(Pe_values) // 5 + len(Pe_values) % 5) * 2, 5
+
+    axsIndexes = [(i, j) for i in range(ROWS) for j in range(cols)]
 
     for N in N_values:
         print("------------------------------------------")
         if cols == 2:
             fig, axs = plt.subplots(ROWS, cols, figsize=(10, 15), constrained_layout=True)
         else:
-            fig, axs = plt.subplots(ROWS, cols, figsize=(20, 5), constrained_layout=True)
+            fig, axs = plt.subplots(ROWS, cols, figsize=(20, 7), constrained_layout=True)
         plt.suptitle(f"Steps = {N - 1}", fontsize=20)
         for i, Pe in enumerate(Pe_values):
-            if method == "CD":
-                x, u, sol = solver_CD(N, Pe)   # solver CD
-            if method == "BD":
-                x, u, sol = counterflow(N, Pe)  # solver
+            x, u, sol = solver_CD(N, Pe)   # solver CD
             axs[axsIndexes[i]].plot(x, sol, label=f"Real Solution, Pe = {Pe}", c='green')
             axs[axsIndexes[i]].plot(x, u, label=f"Numeric Solution, Pe = {Pe}", c='red')
 
+            x, u, sol = counterflow(N, Pe)  # solver BD
+            axs[axsIndexes[i + len(Pe_values)]].plot(x, sol, label=f"Real Solution, Pe = {Pe}", c='green')
+            axs[axsIndexes[i + len(Pe_values)]].plot(x, u, label=f"Numeric Solution, Pe = {Pe}", c='red')
+
+            axs[axsIndexes[i]].set_title("Main value between cells")
             axs[axsIndexes[i]].grid(True)
             axs[axsIndexes[i]].legend()
+
+            axs[axsIndexes[i + len(Pe_values)]].set_title("Anti-Flow Scheme")
+            axs[axsIndexes[i + len(Pe_values)]].grid(True)
+            axs[axsIndexes[i + len(Pe_values)]].legend()
 
         if not (len(N_values) % cols):
             fig.delaxes(axs[-1][-1])
 
-        path_to_save = f'images/{method}_N_{N - 1}.png'
+        path_to_save = f'images/N_{N - 1}.png'
         plt.savefig(path_to_save)
         plt.close()
 
