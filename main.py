@@ -26,4 +26,7 @@ import source.diff_con as solver
 if __name__ == "__main__":
     Pe_values = [0.001, 0.5, 1, 10, 100]
     N_values = [11, 21, 41, 81, 161, 641]
-    solver.draw_solution(Pe_values, N_values, cols=5)
+    print("====== METHOD: CD ======")
+    solver.draw_solution(Pe_values, N_values, cols=5, method="CD")
+    print("====== METHOD: BD ======")
+    solver.draw_solution(Pe_values, N_values, cols=5, method="BD")

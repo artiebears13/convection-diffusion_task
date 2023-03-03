@@ -47,28 +47,45 @@ def norm_L2(vector1: np.array, vector2: np.array) -> float:
     return np.sqrt(norm)
 
 
-def counterflow(N, Pe=10):
-    dirichlet0 = 0
-    dirichletN = 1
-    h = 1 / (N)
-    # N = N - 1
+def counterflow(N: int, Pe: float = 10) -> Tuple[list, np.array, np.array]:
+    dirichlet0, dirichletN = 0, 1
+    h = 1 / (N - 1)
+    N = N - 1
     d = np.zeros(N)
     du = np.zeros(N)
     dl = np.zeros(N)
     b = np.zeros(N)
-    for i in range(0, N):
+
+    b[0] = - dirichlet0 * (-Pe / h - 1 / (h ** 2))
+
+    du[0] = - 1 / (h ** 2)
+    d[0] = 2 * Pe/h + 3/(h ** 2)
+    dl[0] = - 2 * Pe/h - 2/(h ** 2)
+    for i in range(1, N-1):
         b[i] = 0
         du[i] = - 1 / (h ** 2)
         d[i] = Pe / h + 2 / (h ** 2)
         dl[i] = -Pe / h - 1 / (h ** 2)
-    b[0] = - dirichlet0 * (-Pe / h - 1 / (h ** 2))
+
     b[N - 1] = - dirichletN * (- 1 / (h ** 2))
 
-    # print('d',d)
-    # print('du',du)
-    # print('dl', dl)
-    # print('b',b)
-    return d, du, dl, b
+    du[N-1] = - 2 / (h ** 2)
+    d[N-1] = Pe/h + 3/(h ** 2)
+    dl[N-1] = - Pe/h - 1/(h ** 2)
+
+    A = thomas.ThreeDiagMatrix(d, du, dl)
+    u = A.thomas_solver(b)
+    analitic = np.zeros(N)
+    for i in range(0, N):
+        analitic[i] = real_solution(i * h + h / 2, Pe)
+
+    x = []
+    for i in range(N):
+        x.append(i * h + h / 2)
+
+    print(f'Pe {Pe} N = {N + 1} L2 norm: {norm_L2(u, analitic)}')
+
+    return x, u, analitic
 
 
 # between scheme
@@ -102,7 +119,7 @@ def solver_CD(N: int, Pe: float) -> Tuple[list, np.array, np.array]:
     return x, u_first_method, real_sol
 
 
-def draw_solution(Pe_values: List[float], N_values: List[int], cols: int = 5) -> None:
+def draw_solution(Pe_values: List[float], N_values: List[int], cols: int = 5, method: str = "CD") -> None:
     """
     :param Pe_values: list of Pe values;
     :param N_values: list of N values;
@@ -125,7 +142,10 @@ def draw_solution(Pe_values: List[float], N_values: List[int], cols: int = 5) ->
             fig, axs = plt.subplots(ROWS, cols, figsize=(20, 5), constrained_layout=True)
         plt.suptitle(f"Steps = {N - 1}", fontsize=20)
         for i, Pe in enumerate(Pe_values):
-            x, u, sol = solver_CD(N, Pe)   #solver
+            if method == "CD":
+                x, u, sol = solver_CD(N, Pe)   # solver CD
+            if method == "BD":
+                x, u, sol = counterflow(N, Pe)  # solver
             axs[axsIndexes[i]].plot(x, sol, label=f"Real Solution, Pe = {Pe}", c='green')
             axs[axsIndexes[i]].plot(x, u, label=f"Numeric Solution, Pe = {Pe}", c='red')
 
@@ -135,19 +155,14 @@ def draw_solution(Pe_values: List[float], N_values: List[int], cols: int = 5) ->
         if not (len(N_values) % cols):
             fig.delaxes(axs[-1][-1])
 
-        path_to_save = f'images/N_{N - 1}.png'
+        path_to_save = f'images/{method}_N_{N - 1}.png'
         plt.savefig(path_to_save)
         plt.close()
-
 
 
 def testAli(N, Pe=10):
     h = 1 / (N - 1)
     N = N - 1
-    d, du, dl, b = counterflow(N, Pe)
-    x = thomas_solver(N, d, du, dl, b)
-    analitic = []
-    for i in range(0, N):
-        analitic.append(real_solution(i * h + h / 2, Pe))
-    res = norm_L2(analitic, x)
-    print(f'N:{N}  norma: {res}')
+    x, norma_l2 = counterflow(N, Pe)
+
+    print(f'BD_method  N:{N}  norma: {norma_l2}')
