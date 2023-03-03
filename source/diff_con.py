@@ -47,28 +47,45 @@ def norm_L2(vector1: np.array, vector2: np.array) -> float:
     return np.sqrt(norm)
 
 
-def counterflow(N, Pe=10):
-    dirichlet0 = 0
-    dirichletN = 1
-    h = 1 / (N)
-    # N = N - 1
+def counterflow(N: int, Pe: float = 10) -> Tuple[list, np.array, np.array]:
+    dirichlet0, dirichletN = 0, 1
+    h = 1 / (N - 1)
+    N = N - 1
     d = np.zeros(N)
     du = np.zeros(N)
     dl = np.zeros(N)
     b = np.zeros(N)
-    for i in range(0, N):
+
+    b[0] = - dirichlet0 * (-2 * Pe / h - 2 / (h ** 2))
+
+    du[0] = - 1 / (h ** 2)
+    d[0] = 2 * Pe/h + 3/(h ** 2)
+    dl[0] = - 2 * Pe/h - 2/(h ** 2)
+    for i in range(1, N-1):
         b[i] = 0
         du[i] = - 1 / (h ** 2)
         d[i] = Pe / h + 2 / (h ** 2)
         dl[i] = -Pe / h - 1 / (h ** 2)
-    b[0] = - dirichlet0 * (-Pe / h - 1 / (h ** 2))
-    b[N - 1] = - dirichletN * (- 1 / (h ** 2))
 
-    # print('d',d)
-    # print('du',du)
-    # print('dl', dl)
-    # print('b',b)
-    return d, du, dl, b
+    b[N - 1] = - dirichletN * (- 2 / (h ** 2))
+
+    du[N-1] = - 2 / (h ** 2)
+    d[N-1] = Pe/h + 3/(h ** 2)
+    dl[N-1] = - Pe/h - 1/(h ** 2)
+
+    A = thomas.ThreeDiagMatrix(d, du, dl)
+    u = A.thomas_solver(b)
+    analitic = np.zeros(N)
+    for i in range(0, N):
+        analitic[i] = real_solution(i * h + h / 2, Pe)
+
+    x = []
+    for i in range(N):
+        x.append(i * h + h / 2)
+
+    print(f'Pe {Pe} N = {N + 1} L2 norm: {norm_L2(u, analitic)}')
+
+    return x, u, analitic
 
 
 # between scheme
@@ -115,26 +132,35 @@ def draw_solution(Pe_values: List[float], N_values: List[int], cols: int = 5) ->
     """
 
     if cols == 2:
-        ROWS = len(N_values) // 2 + len(N_values) % 2
-        axsIndexes = [(i, j) for i in range(ROWS) for j in range(cols)]
+        ROWS = (len(N_values) // 2 + len(N_values) % 2) * 2
     else:
-        ROWS, cols = len(Pe_values) // 5 + len(Pe_values) % 5, 5
-        axsIndexes = [_ for _ in range(cols)]
+        ROWS, cols = (len(Pe_values) // 5 + len(Pe_values) % 5) * 2, 5
+
+    axsIndexes = [(i, j) for i in range(ROWS) for j in range(cols)]
 
     for N in N_values:
         print("------------------------------------------")
         if cols == 2:
             fig, axs = plt.subplots(ROWS, cols, figsize=(10, 15), constrained_layout=True)
         else:
-            fig, axs = plt.subplots(ROWS, cols, figsize=(20, 5), constrained_layout=True)
+            fig, axs = plt.subplots(ROWS, cols, figsize=(20, 7), constrained_layout=True)
         plt.suptitle(f"Steps = {N - 1}", fontsize=20)
         for i, Pe in enumerate(Pe_values):
-            x, u, sol = solver_CD(N, Pe)   #solver
+            x, u, sol = solver_CD(N, Pe)   # solver CD
             axs[axsIndexes[i]].plot(x, sol, label=f"Real Solution, Pe = {Pe}", c='green')
             axs[axsIndexes[i]].plot(x, u, label=f"Numeric Solution, Pe = {Pe}", c='red')
 
+            x, u, sol = counterflow(N, Pe)  # solver BD
+            axs[axsIndexes[i + len(Pe_values)]].plot(x, sol, label=f"Real Solution, Pe = {Pe}", c='green')
+            axs[axsIndexes[i + len(Pe_values)]].plot(x, u, label=f"Numeric Solution, Pe = {Pe}", c='red')
+
+            axs[axsIndexes[i]].set_title("Main value between cells")
             axs[axsIndexes[i]].grid(True)
             axs[axsIndexes[i]].legend()
+
+            axs[axsIndexes[i + len(Pe_values)]].set_title("Anti-Flow Scheme")
+            axs[axsIndexes[i + len(Pe_values)]].grid(True)
+            axs[axsIndexes[i + len(Pe_values)]].legend()
 
         if not (len(N_values) % cols):
             fig.delaxes(axs[-1][-1])
@@ -148,10 +174,6 @@ def draw_solution(Pe_values: List[float], N_values: List[int], cols: int = 5) ->
 def testAli(N, Pe=10):
     h = 1 / (N - 1)
     N = N - 1
-    d, du, dl, b = counterflow(N, Pe)
-    x = thomas_solver(N, d, du, dl, b)
-    analitic = []
-    for i in range(0, N):
-        analitic.append(real_solution(i * h + h / 2, Pe))
-    res = norm_L2(analitic, x)
-    print(f'N:{N}  norma: {res}')
+    x, norma_l2 = counterflow(N, Pe)
+
+    print(f'BD_method  N:{N}  norma: {norma_l2}')
