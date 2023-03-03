@@ -19,14 +19,11 @@ import source.diff_con as solver
 
         u(x) = (exp(Pe*x)-1)/(exp(Pe) - 1),  du/dx = Pe*(exp(Pe*x))/(exp(Pe)-1)
 
-
         Pe = 0, 0.5, 1, 10, 100
 '''
 
 if __name__ == "__main__":
     Pe_values = [0.001, 0.5, 1, 10, 100]
     N_values = [11, 21, 41, 81, 161, 641]
-    print("====== METHOD: CD ======")
-    solver.draw_solution(Pe_values, N_values, cols=5, method="CD")
-    print("====== METHOD: BD ======")
-    solver.draw_solution(Pe_values, N_values, cols=5, method="BD")
+    solver.draw_solution(Pe_values, N_values, cols=5)
+
