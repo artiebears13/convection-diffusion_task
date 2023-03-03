@@ -119,7 +119,7 @@ def solver_CD(N: int, Pe: float) -> Tuple[list, np.array, np.array]:
     return x, u_first_method, real_sol
 
 
-def draw_solution(Pe_values: List[float], N_values: List[int], cols: int = 5, method: str = "CD") -> None:
+def draw_solution(Pe_values: List[float], N_values: List[int], cols: int = 5) -> None:
     """
     :param Pe_values: list of Pe values;
     :param N_values: list of N values;
