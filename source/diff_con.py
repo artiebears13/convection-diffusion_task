@@ -3,17 +3,18 @@ from sys import stderr
 import time
 import thomas
 import matplotlib.pyplot as plt
+from typing import Tuple, List
 
 
-def real_solution_der(x, Pe):
+def real_solution_der(x: float, Pe: float):
     return Pe * (np.exp(Pe * x)) / (np.exp(Pe) - 1.0)
 
 
-def real_solution(x, Pe):
+def real_solution(x: float, Pe: float):
     return (np.exp(Pe * x) - 1.0) / (np.exp(Pe) - 1.0)
 
 
-def thomas_solver(n, d, du, dl, b):
+def thomas_solver(n: int, d: np.array, du: np.array, dl: np.array, b: np.array) -> np.array:
     if d[0] == 0:
         stderr.write('condition w[i]==0 not met')
         exit(-1)
@@ -36,7 +37,7 @@ def thomas_solver(n, d, du, dl, b):
     return u
 
 
-def norm_L2(vector1, vector2):
+def norm_L2(vector1: np.array, vector2: np.array) -> float:
     if len(vector1) != len(vector2):
         print('not equal lengths in norm calculating')
         return 0
@@ -47,7 +48,7 @@ def norm_L2(vector1, vector2):
 
 
 # between scheme
-def solver_CD(N, Pe):
+def solver_CD(N: int, Pe: float) -> Tuple[list, np.array, np.array]:
     h = 1. / (N - 1)
 
     boundary_left = 0
@@ -63,38 +64,58 @@ def solver_CD(N, Pe):
     b[N - 1] = b[N - 1] - du[N - 1] * boundary_right
 
     A = thomas.ThreeDiagMatrix(d, du, dl)
-    # print('du: ', du)
-    # print('d: ', d)
-    # print('dl: ', dl)
-    # print('b: ', b)
     u_first_method = A.thomas_solver(b)
     real_sol = np.zeros(N)
     x = []
     for i in range(N):
         x.append(i * h + h / 2)
-        # print('x: ',x[i])
         real_sol[i] = real_solution(x[i], Pe)
 
-    # print('numeric: ', u_first_method)
-    # print('real:    ', real_sol)
+    print(f'Pe {Pe} N = {N + 1} L2 norm: {norm_L2(u_first_method, real_sol)}')
 
-    print('----------------------------------------------------------')
-    print('Pe', Pe, ' N = ', N + 1, ' L2 norm: ', norm_L2(u_first_method, real_sol))
+    return x, u_first_method, real_sol
 
-    plt.plot(x, u_first_method, label='numeric')
-    plt.plot(x, real_sol, label='real')
-    plt.legend()
-    where_to_save = f'../images/Pe_{Pe}_N_{N+1}.png'
-    plt.savefig(where_to_save)
-    plt.close()
 
-    return u_first_method
+def draw_solution(Pe_values: List[float], N_values: List[int], cols: int = 5) -> None:
+    """
+    :param Pe_values: list of Pe values;
+    :param N_values: list of N values;
+    :param cols: 2 or 5 (default);
+    :return: figures;
+    """
+
+    if cols == 2:
+        ROWS = len(N_values) // 2 + len(N_values) % 2
+        axsIndexes = [(i, j) for i in range(ROWS) for j in range(cols)]
+    else:
+        ROWS, cols = len(Pe_values) // 5 + len(Pe_values) % 5, 5
+        axsIndexes = [_ for _ in range(cols)]
+
+    for N in N_values:
+        print("------------------------------------------")
+        if cols == 2:
+            fig, axs = plt.subplots(ROWS, cols, figsize=(10, 15), constrained_layout=True)
+        else:
+            fig, axs = plt.subplots(ROWS, cols, figsize=(20, 5), constrained_layout=True)
+        plt.suptitle(f"Steps = {N - 1}", fontsize=20)
+        for i, Pe in enumerate(Pe_values):
+            x, u, sol = solver_CD(N, Pe)
+            axs[axsIndexes[i]].plot(x, sol, label=f"Real Solution, Pe = {Pe}", c='green')
+            axs[axsIndexes[i]].plot(x, u, label=f"Numeric Solution, Pe = {Pe}", c='red')
+
+            axs[axsIndexes[i]].grid(True)
+            axs[axsIndexes[i]].legend()
+
+        if not (len(N_values) % cols):
+            fig.delaxes(axs[-1][-1])
+
+        path_to_save = f'../images/N_{N - 1}.png'
+        plt.savefig(path_to_save)
+        plt.close()
 
 
 if __name__ == "__main__":
     Pe_values = [0.001, 0.5, 1, 10, 100]
     N_values = [11, 21, 41, 81, 161, 641]
-    for Pe in Pe_values:
-        for N in N_values:
-            solver_CD(N, Pe)
+    draw_solution(Pe_values, N_values, cols=2)
 
