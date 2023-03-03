@@ -17,10 +17,7 @@ def thomas_solver(n, d, du, dl, b):
     if d[0] == 0:
         stderr.write('condition w[i]==0 not met')
         exit(-1)
-    q = np.zeros(n)
-    g = np.zeros(n)
-
-    u = np.zeros(n)
+    q, g, u = [_ for _ in np.zeros(n)]
     q[0] = du[0] / d[0]
     g[0] = b[0] / d[0]
     for i in range(1, n):
@@ -41,7 +38,7 @@ def thomas_solver(n, d, du, dl, b):
 
 def norm_L2(vector1, vector2):
     if len(vector1) != len(vector2):
-        print('not equal lenghts in norm calculating')
+        print('not equal lengths in norm calculating')
         return 0
     norm = 0
     for i in range(len(vector2)):
@@ -107,16 +104,18 @@ def solver_CD(N, Pe):
 
     print('----------------------------------------------------------')
     print('Pe', Pe, ' N = ', N + 1, ' L2 norm: ', norm_L2(u_first_method, real_sol))
-    # print('----------------------------------------------------------')
+
 
     plt.plot(x, u_first_method, label='numeric')
     plt.plot(x, real_sol, label='real')
     plt.legend()
-    where_to_save = '../images/' + 'Pe_' + str(Pe) + '_N_' + str(N + 1) + '.png'
+
+    where_to_save = f'../images/Pe_{Pe}_N_{N+1}.png'
     plt.savefig(where_to_save)
     plt.close()
 
     return u_first_method
+
 
 
 def testAli(N, Pe=10):
@@ -151,8 +150,12 @@ def solve_for_pe(Pe):
     solver_CD(N, Pe)
 
 
-if __name__ == '__main__':
-    for i in range(100, 150, 10):
-        print(i*100+1)
-        testAli(i * 100 + 1, 100)
-        solver_CD(i * 100 + 1, 100)
+
+if __name__ == "__main__":
+    Pe_values = [0.001, 0.5, 1, 10, 100]
+    N_values = [11, 21, 41, 81, 161, 641]
+    for Pe in Pe_values:
+        for N in N_values:
+            solver_CD(N, Pe)
+
+
