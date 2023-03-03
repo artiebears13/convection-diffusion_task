@@ -46,6 +46,30 @@ def norm_L2(vector1, vector2):
     return np.sqrt(norm)
 
 
+def counterflow(N, Pe=10):
+    dirichlet0 = 0
+    dirichletN = 1
+    h = 1 / (N)
+    # N = N - 1
+    d = np.zeros(N)
+    du = np.zeros(N)
+    dl = np.zeros(N)
+    b = np.zeros(N)
+    for i in range(0, N):
+        b[i] = 0
+        du[i] = - 1 / (h ** 2)
+        d[i] = Pe / h + 2 / (h ** 2)
+        dl[i] = -Pe / h - 1 / (h ** 2)
+    b[0] = - dirichlet0 * (-Pe / h - 1 / (h ** 2))
+    b[N - 1] = - dirichletN * (- 1 / (h ** 2))
+
+    # print('d',d)
+    # print('du',du)
+    # print('dl', dl)
+    # print('b',b)
+    return d, du, dl, b
+
+
 # between scheme
 def solver_CD(N, Pe):
     h = 1. / (N - 1)
@@ -81,14 +105,50 @@ def solver_CD(N, Pe):
     print('----------------------------------------------------------')
     print('Pe', Pe, ' N = ', N + 1, ' L2 norm: ', norm_L2(u_first_method, real_sol))
 
+
     plt.plot(x, u_first_method, label='numeric')
     plt.plot(x, real_sol, label='real')
     plt.legend()
+
     where_to_save = f'../images/Pe_{Pe}_N_{N+1}.png'
     plt.savefig(where_to_save)
     plt.close()
 
     return u_first_method
+
+
+
+def testAli(N, Pe=10):
+    h = 1 / (N - 1)
+    N = N - 1
+    d, du, dl, b = counterflow(N, Pe)
+    x = thomas_solver(N, d, du, dl, b)
+    analitic = []
+    for i in range(0, N):
+        analitic.append(real_solution(i * h + h / 2, Pe))
+    res = norm_L2(analitic, x)
+    print(f'N:{N}  norma: {res}')
+
+
+def solve_for_pe(Pe):
+    N = 11
+    solver_CD(N, Pe)
+
+    N = 21
+    solver_CD(N, Pe)
+
+    N = 41
+    solver_CD(N, Pe)
+
+    N = 81
+    solver_CD(N, Pe)
+
+    N = 161
+    solver_CD(N, Pe)
+
+    N = 641
+    solver_CD(N, Pe)
+
 
 
 if __name__ == "__main__":
@@ -97,4 +157,5 @@ if __name__ == "__main__":
     for Pe in Pe_values:
         for N in N_values:
             solver_CD(N, Pe)
+
 
