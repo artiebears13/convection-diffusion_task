@@ -4,6 +4,7 @@ import time
 import thomas
 import matplotlib.pyplot as plt
 
+
 def real_solution_der(x, Pe):
     return Pe * (np.exp(Pe * x)) / (np.exp(Pe) - 1.0)
 
@@ -16,10 +17,7 @@ def thomas_solver(n, d, du, dl, b):
     if d[0] == 0:
         stderr.write('condition w[i]==0 not met')
         exit(-1)
-    q = np.zeros(n)
-    g = np.zeros(n)
-
-    u = np.zeros(n)
+    q, g, u = [_ for _ in np.zeros(n)]
     q[0] = du[0] / d[0]
     g[0] = b[0] / d[0]
     for i in range(1, n):
@@ -40,7 +38,7 @@ def thomas_solver(n, d, du, dl, b):
 
 def norm_L2(vector1, vector2):
     if len(vector1) != len(vector2):
-        print('not equal lenghts in norm calculating')
+        print('not equal lengths in norm calculating')
         return 0
     norm = 0
     for i in range(len(vector2)):
@@ -59,8 +57,6 @@ def solver_CD(N, Pe):
     dl = np.ones(N) * (-1 * Pe / (2 * h) - 1 / (h ** 2))  # upper diagonal
     du = np.ones(N) * (1 * Pe / (2 * h) - 1 / (h ** 2))  # lower diagonal
 
-
-
     b = np.zeros(N)
 
     b[0] = b[0] - dl[0] * boundary_left
@@ -75,7 +71,7 @@ def solver_CD(N, Pe):
     real_sol = np.zeros(N)
     x = []
     for i in range(N):
-        x.append( i * h + h / 2)
+        x.append(i * h + h / 2)
         # print('x: ',x[i])
         real_sol[i] = real_solution(x[i], Pe)
 
@@ -83,20 +79,19 @@ def solver_CD(N, Pe):
     # print('real:    ', real_sol)
 
     print('----------------------------------------------------------')
-    print('Pe',Pe,' N = ', N + 1, ' L2 norm: ', norm_L2(u_first_method, real_sol))
-    # print('----------------------------------------------------------')
+    print('Pe', Pe, ' N = ', N + 1, ' L2 norm: ', norm_L2(u_first_method, real_sol))
 
-    plt.plot(x, u_first_method, label = 'numeric')
-    plt.plot(x, real_sol, label = 'real')
+    plt.plot(x, u_first_method, label='numeric')
+    plt.plot(x, real_sol, label='real')
     plt.legend()
-    where_to_save = '../images/'+'Pe_' + str(Pe) + '_N_'+str(N+1)+'.png'
+    where_to_save = f'../images/Pe_{Pe}_N_{N+1}.png'
     plt.savefig(where_to_save)
     plt.close()
 
     return u_first_method
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     Pe_values = [0.001, 0.5, 1, 10, 100]
     N_values = [11, 21, 41, 81, 161, 641]
     for Pe in Pe_values:
