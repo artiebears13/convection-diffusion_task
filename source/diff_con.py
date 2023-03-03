@@ -1,7 +1,7 @@
 import numpy as np
 from sys import stderr
 import time
-import thomas
+import source.thomas as thomas
 import matplotlib.pyplot as plt
 from typing import Tuple, List
 
@@ -83,7 +83,9 @@ def solver_CD(N: int, Pe: float) -> Tuple[list, np.array, np.array]:
     du = np.ones(N) * (1 * Pe / (2 * h) - 1 / (h ** 2))  # lower diagonal
 
     b = np.zeros(N)
-
+    dl[0] = -Pe/h - 2/(h**2)
+    d[0] = Pe/(2*h) + 3/(h**2)
+    du[0] = Pe/(2*h) - 1/(h**2)
     b[0] = b[0] - dl[0] * boundary_left
     b[N - 1] = b[N - 1] - du[N - 1] * boundary_right
 
@@ -123,7 +125,7 @@ def draw_solution(Pe_values: List[float], N_values: List[int], cols: int = 5) ->
             fig, axs = plt.subplots(ROWS, cols, figsize=(20, 5), constrained_layout=True)
         plt.suptitle(f"Steps = {N - 1}", fontsize=20)
         for i, Pe in enumerate(Pe_values):
-            x, u, sol = solver_CD(N, Pe)
+            x, u, sol = solver_CD(N, Pe)   #solver
             axs[axsIndexes[i]].plot(x, sol, label=f"Real Solution, Pe = {Pe}", c='green')
             axs[axsIndexes[i]].plot(x, u, label=f"Numeric Solution, Pe = {Pe}", c='red')
 
@@ -133,7 +135,7 @@ def draw_solution(Pe_values: List[float], N_values: List[int], cols: int = 5) ->
         if not (len(N_values) % cols):
             fig.delaxes(axs[-1][-1])
 
-        path_to_save = f'../images/N_{N - 1}.png'
+        path_to_save = f'images/N_{N - 1}.png'
         plt.savefig(path_to_save)
         plt.close()
 
@@ -149,32 +151,3 @@ def testAli(N, Pe=10):
         analitic.append(real_solution(i * h + h / 2, Pe))
     res = norm_L2(analitic, x)
     print(f'N:{N}  norma: {res}')
-
-
-def solve_for_pe(Pe):
-    N = 11
-    solver_CD(N, Pe)
-
-    N = 21
-    solver_CD(N, Pe)
-
-    N = 41
-    solver_CD(N, Pe)
-
-    N = 81
-    solver_CD(N, Pe)
-
-    N = 161
-    solver_CD(N, Pe)
-
-    N = 641
-    solver_CD(N, Pe)
-
-
-
-if __name__ == "__main__":
-    Pe_values = [0.001, 0.5, 1, 10, 100]
-    N_values = [11, 21, 41, 81, 161, 641]
-    draw_solution(Pe_values, N_values, cols=2)
-
-
