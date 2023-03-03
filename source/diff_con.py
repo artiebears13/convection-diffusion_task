@@ -56,7 +56,7 @@ def counterflow(N: int, Pe: float = 10) -> Tuple[list, np.array, np.array]:
     dl = np.zeros(N)
     b = np.zeros(N)
 
-    b[0] = - dirichlet0 * (-Pe / h - 1 / (h ** 2))
+    b[0] = - dirichlet0 * (-2 * Pe / h - 2 / (h ** 2))
 
     du[0] = - 1 / (h ** 2)
     d[0] = 2 * Pe/h + 3/(h ** 2)
@@ -67,7 +67,7 @@ def counterflow(N: int, Pe: float = 10) -> Tuple[list, np.array, np.array]:
         d[i] = Pe / h + 2 / (h ** 2)
         dl[i] = -Pe / h - 1 / (h ** 2)
 
-    b[N - 1] = - dirichletN * (- 1 / (h ** 2))
+    b[N - 1] = - dirichletN * (- 2 / (h ** 2))
 
     du[N-1] = - 2 / (h ** 2)
     d[N-1] = Pe/h + 3/(h ** 2)
