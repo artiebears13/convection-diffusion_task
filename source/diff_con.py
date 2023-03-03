@@ -47,6 +47,30 @@ def norm_L2(vector1: np.array, vector2: np.array) -> float:
     return np.sqrt(norm)
 
 
+def counterflow(N, Pe=10):
+    dirichlet0 = 0
+    dirichletN = 1
+    h = 1 / (N)
+    # N = N - 1
+    d = np.zeros(N)
+    du = np.zeros(N)
+    dl = np.zeros(N)
+    b = np.zeros(N)
+    for i in range(0, N):
+        b[i] = 0
+        du[i] = - 1 / (h ** 2)
+        d[i] = Pe / h + 2 / (h ** 2)
+        dl[i] = -Pe / h - 1 / (h ** 2)
+    b[0] = - dirichlet0 * (-Pe / h - 1 / (h ** 2))
+    b[N - 1] = - dirichletN * (- 1 / (h ** 2))
+
+    # print('d',d)
+    # print('du',du)
+    # print('dl', dl)
+    # print('b',b)
+    return d, du, dl, b
+
+
 # between scheme
 def solver_CD(N: int, Pe: float) -> Tuple[list, np.array, np.array]:
     h = 1. / (N - 1)
@@ -114,8 +138,43 @@ def draw_solution(Pe_values: List[float], N_values: List[int], cols: int = 5) ->
         plt.close()
 
 
+
+def testAli(N, Pe=10):
+    h = 1 / (N - 1)
+    N = N - 1
+    d, du, dl, b = counterflow(N, Pe)
+    x = thomas_solver(N, d, du, dl, b)
+    analitic = []
+    for i in range(0, N):
+        analitic.append(real_solution(i * h + h / 2, Pe))
+    res = norm_L2(analitic, x)
+    print(f'N:{N}  norma: {res}')
+
+
+def solve_for_pe(Pe):
+    N = 11
+    solver_CD(N, Pe)
+
+    N = 21
+    solver_CD(N, Pe)
+
+    N = 41
+    solver_CD(N, Pe)
+
+    N = 81
+    solver_CD(N, Pe)
+
+    N = 161
+    solver_CD(N, Pe)
+
+    N = 641
+    solver_CD(N, Pe)
+
+
+
 if __name__ == "__main__":
     Pe_values = [0.001, 0.5, 1, 10, 100]
     N_values = [11, 21, 41, 81, 161, 641]
     draw_solution(Pe_values, N_values, cols=2)
+
 
