@@ -1,3 +1,5 @@
+import source.diff_con as solver
+
 '''
 
         FINITE VOLUME METHOD for convection-diffusion equation
