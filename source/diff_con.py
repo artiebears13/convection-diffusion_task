@@ -96,37 +96,10 @@ def solver_CD(N, Pe):
     return u_first_method
 
 
-def solve_for_pe(Pe):
-    N = 11
-    solver_CD(N, Pe)
-
-    N = 21
-    solver_CD(N, Pe)
-
-    N = 41
-    solver_CD(N, Pe)
-
-    N = 81
-    solver_CD(N, Pe)
-
-    N = 161
-    solver_CD(N,Pe)
-
-    N = 641
-    solver_CD(N, Pe)
-
 if __name__ == '__main__':
-    Pe = 1
-    solve_for_pe(Pe)
+    Pe_values = [0.001, 0.5, 1, 10, 100]
+    N_values = [11, 21, 41, 81, 161, 641]
+    for Pe in Pe_values:
+        for N in N_values:
+            solver_CD(N, Pe)
 
-    Pe = 0.001
-    solve_for_pe(Pe)
-
-    Pe = 0.5
-    solve_for_pe(Pe)
-
-    Pe = 10
-    solve_for_pe(Pe)
-
-    Pe = 100
-    solve_for_pe(Pe)
