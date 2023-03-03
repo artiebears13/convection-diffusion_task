@@ -86,6 +86,10 @@ def solver_CD(N: int, Pe: float) -> Tuple[list, np.array, np.array]:
     dl[0] = -Pe/h - 2/(h**2)
     d[0] = Pe/(2*h) + 3/(h**2)
     du[0] = Pe/(2*h) - 1/(h**2)
+
+    dl[N-1] = -Pe / h - 2 / (h ** 2)
+    d[N-1] = Pe / (2 * h) + 3 / (h ** 2)
+    du[N-1] = Pe / (2 * h) - 1 / (h ** 2)
     b[0] = b[0] - dl[0] * boundary_left
     b[N - 1] = b[N - 1] - du[N - 1] * boundary_right
 
