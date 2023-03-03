@@ -55,19 +55,37 @@ def counterflow(N, Pe=10):
     du = np.zeros(N)
     dl = np.zeros(N)
     b = np.zeros(N)
-    for i in range(0, N):
+
+    b[0] = - dirichlet0 * (-Pe / h - 1 / (h ** 2))
+
+    du[0] = - 1 / (h ** 2)
+    d[0] = 2 * Pe/h + 3/(h ** 2)
+    dl[0] = - 2 * Pe/h - 2/(h ** 2)
+    for i in range(1, N-1):
         b[i] = 0
         du[i] = - 1 / (h ** 2)
         d[i] = Pe / h + 2 / (h ** 2)
         dl[i] = -Pe / h - 1 / (h ** 2)
-    b[0] = - dirichlet0 * (-Pe / h - 1 / (h ** 2))
+
     b[N - 1] = - dirichletN * (- 1 / (h ** 2))
+
+    du[N-1] = - 2 / (h ** 2)
+    d[N-1] = Pe/h + 3/(h ** 2)
+    dl[N-1] = - Pe/h - 1/(h ** 2)
+
+
+    A = thomas.ThreeDiagMatrix(d, du, dl)
+    x = A.thomas_solver(b)
+    analitic = np.zeros(N)
+    for i in range(0, N):
+        analitic[i] = real_solution(i * h + h / 2, Pe)
+    res_l2 = norm_L2(analitic, x)
 
     # print('d',d)
     # print('du',du)
     # print('dl', dl)
     # print('b',b)
-    return d, du, dl, b
+    return x, res_l2  # x -  numerical solution, res_l2 - norma l2 * sqrt(h)
 
 
 # between scheme
@@ -118,16 +136,6 @@ def solver_CD(N, Pe):
 
 
 
-def testAli(N, Pe=10):
-    h = 1 / (N - 1)
-    N = N - 1
-    d, du, dl, b = counterflow(N, Pe)
-    x = thomas_solver(N, d, du, dl, b)
-    analitic = []
-    for i in range(0, N):
-        analitic.append(real_solution(i * h + h / 2, Pe))
-    res = norm_L2(analitic, x)
-    print(f'N:{N}  norma: {res}')
 
 
 def solve_for_pe(Pe):
@@ -150,6 +158,13 @@ def solve_for_pe(Pe):
     solver_CD(N, Pe)
 
 
+def testAli(N, Pe=10):
+    h = 1 / (N - 1)
+    N = N - 1
+    x, norma_l2 = counterflow(N, Pe)
+
+    print(f'BD_method  N:{N}  norma: {norma_l2}')
+
 
 if __name__ == "__main__":
     Pe_values = [0.001, 0.5, 1, 10, 100]
@@ -157,5 +172,5 @@ if __name__ == "__main__":
     for Pe in Pe_values:
         for N in N_values:
             solver_CD(N, Pe)
-
+            testAli(N,Pe)
 
