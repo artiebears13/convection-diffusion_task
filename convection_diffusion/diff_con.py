@@ -1,7 +1,7 @@
 import numpy as np
 from sys import stderr
 import time
-import source.thomas as thomas
+import convection_diffusion.thomas as thomas
 import matplotlib.pyplot as plt
 from typing import Tuple, List
 
@@ -131,7 +131,7 @@ def draw_error(Pe_values: List[float], N_values: List[int]) -> None:
 
     axs[1, 2].set_title(" Norm L2 Anti-Flow Scheme")
 
-    path_to_save = f'images/L2_norm.png'
+    path_to_save = f'images/convection-diffusion/L2_norm.png'
     plt.savefig(path_to_save)
     plt.close()
 
@@ -178,6 +178,6 @@ def draw_solution(Pe_values: List[float], N_values: List[int], cols: int = 5) ->
         if not (len(N_values) % cols):
             fig.delaxes(axs[-1][-1])
 
-        path_to_save = f'images/N_{N - 1}.png'
+        path_to_save = f'images/convection-diffusion/N_{N - 1}.png'
         plt.savefig(path_to_save)
         plt.close()

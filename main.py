@@ -1,8 +1,8 @@
-import source.diff_con as solver
+import convection_diffusion.diff_con as solver
 
 '''
 
-        FINITE VOLUME METHOD for convection-diffusion equation
+        FINITE VOLUME METHOD for convection_diffusion equation
         точное решение удовлетворяет принципу максимума 0<=U(x)<=1 \forall x \in (0,1)
         при больших Пекле около х=1 имеется пограничный слой
 

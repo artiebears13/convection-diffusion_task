@@ -6,4 +6,4 @@ images/*
 L2_images/*
 */__pycache__
 venv
-source/__pycache__/thomas.cpython-310.pyc
+convection_diffusion/__pycache__/thomas.cpython-310.pyc
