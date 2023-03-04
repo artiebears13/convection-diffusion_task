@@ -119,11 +119,11 @@ def draw_error(Pe_values: List[float], N_values: List[int]) -> None:
             xbd, ubd, solbd = counterflow(N, Pe)  # solver BD
             array_l2_BD.append(norm_L2(ubd, solbd, h))
 
-        axs[0, i].plot(N_values, array_l2_CD, label=f"Pe = {Pe}", c='green')
+        axs[0, i].plot(np.log(N_values), np.log(array_l2_CD), label=f"Pe = {Pe}", c='green')
         axs[0, i].grid(True)
         axs[0, i].legend()
 
-        axs[1, i].plot(N_values, array_l2_BD, label=f"Pe = {Pe}", c='red')
+        axs[1, i].plot(np.log(N_values), np.log(array_l2_BD), label=f"Pe = {Pe}", c='red')
         axs[1, i].grid(True)
         axs[1, i].legend()
 
