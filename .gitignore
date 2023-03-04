@@ -3,4 +3,7 @@
 cmake-build-debug
 build
 images/*
+L2_images/*
+*/__pycache__
 venv
+convection_diffusion/__pycache__/thomas.cpython-310.pyc
